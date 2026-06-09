@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delivery Postcode Checker</title>
+<style>
+  .delivery-checker-container {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    max-width: 480px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    border: 1px solid #eaecef;
+    text-align: center;
+  }
+  .delivery-checker-container h2 {
+    margin-top: 0;
+    color: #24292e;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  .delivery-checker-container p {
+    color: #586069;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+  .input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1.2rem;
+  }
+  .input-group input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid #d1d5da;
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.2s ease;
+  }
+  .input-group input:focus {
+    border-color: #0366d6;
+    box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.15);
+  }
+  .input-group button {
+    padding: 12px 24px;
+    background-color: #0366d6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  .input-group button:hover {
+    background-color: #005cc5;
+  }
+  #result-message {
+    padding: 1rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    display: none;
+    transition: all 0.3s ease;
+    text-align: left;
+  }
+  .result-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+  .result-warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+  }
+  .result-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+</style>
+</head>
+<body>
+
+<div class="delivery-checker-container">
+  <h2>Check Delivery Options</h2>
+  <p>Enter your full postcode below to see our available delivery services for your area.</p>
+  
+  <div class="input-group">
+    <input type="text" id="postcodeInput" placeholder="e.g. AB10 1AA">
+    <button id="searchButton">Search</button>
+  </div>
+  
+  <div id="result-message"></div>
+</div>
+
+<script>
+// Array 1: Specific regions and outcodes with NO Next Day Service
+const noNextDay = [
+  "AB31", "AB32", "AB33", "AB34", "AB35", "AB36", "AB37", "AB38", "AB41", "AB42", 
+  "AB43", "AB44", "AB45", "AB51", "AB52", "AB53", "AB54", "AB55", "AB56", "BT", 
+  "FK17", "FK18", "FK19", "FK20", "FK21", "FK22", "GY", "HS", "IM", "IV", "JE", 
+  "KA27", "KA28", "KW1", "KW2", "KW3", "KW4", "KW5", "KW6", "KW7", "KW8", "KW9", 
+  "KW10", "KW11", "KW12", "KW13", "KW14", "KW15", "KW16", "KW17", "NP1", "NP5", 
+  "NP6", "NP9", "PA20", "PA21", "PA22", "PA23", "PA24", "PA25", "PA26", "PA27", 
+  "PA28", "PA29", "PA30", "PA31", "PA32", "PA33", "PA34", "PA35", "PA36", "PA37", 
+  "PA38", "PA39", "PA40", "PA41", "PA42", "PA43", "PA44", "PA45", "PA46", "PA47", 
+  "PA48", "PA49", "PA60", "PA61", "PA62", "PA63", "PA64", "PA65", "PA66", "PA67", 
+  "PA68", "PA69", "PA70", "PA71", "PA72", "PA73", "PA74", "PA75", "PA76", "PA77", 
+  "PA78", "PA79", "PA80", "PA81", "PA82", "PA83", "PA84", "PA85", "PA86", "PA87", 
+  "PA88", "PH15", "PH16", "PH17", "PH18", "PH19", "PH20", "PH21", "PH22", "PH23", 
+  "PH24", "PH25", "PH26", "PH30", "PH31", "PH32", "PH33", "PH34", "PH35", "PH36", 
+  "PH37", "PH38", "PH39", "PH40", "PH41", "PH42", "PH43", "PH44", "PH49", "PH50", 
+  "TR21", "TR22", "TR23", "TR24", "TR25", "ZE"
+];
+
+// Array 2: Specific regions and outcodes eligible for Alternate Express Service
+const altExpress = [
+  "AB10", "AB11", "AB12", "AB13", "AB14", "AB15", "AB16", "AB21", "AB22", "AB23", "AB24", "AB25", "AB30", 
+  "BD23", 
+  "CA1", "CA2", "CA3", "CA4", "CA5", "CA6", "CA7", "CA8", "CA9", "CA10", "CA11", "CA12", "CA13", "CA14", "CA15", "CA16", "CA17", "CA18", "CA19", "CA20", "CA21", "CA22", "CA23", "CA24", "CA25", "CA26", "CA27", "CA28", "CA95", "CA99", 
+  "DD1", "DD2", "DD3", "DD4", "DD5", "DD6", "DD7", "DD8", "DD9", "DD10", "DD11", 
+  "DG1", "DG2", "DG3", "DG4", "DG5", "DG6", "DG7", "DG8", "DG9", "DG10", "DG11", "DG12", "DG13", "DG14", "DG16", 
+  "DH8", 
+  "DL8", "DL11", "DL12", "DL13", 
+  "EH", 
+  "EX20", "EX21", "EX22", "EX23", "EX39", 
+  "FK1", "FK2", "FK3", "FK4", "FK5", "FK6", "FK7", "FK8", "FK9", "FK10", "FK11", "FK12", "FK13", "FK14", "FK15", "FK16", 
+  "G", 
+  "GY1", "GY2", "GY3", "GY4", "GY5", "GY6", "GY7", "GY8", "GY9", "GY10", 
+  "KA1", "KA2", "KA3", "KA4", "KA5", "KA6", "KA7", "KA8", "KA9", "KA10", "KA11", "KA12", "KA13", "KA14", "KA15", "KA16", "KA17", "KA18", "KA19", "KA20", "KA21", "KA22", "KA23", "KA24", "KA25", "KA26", "KA29", "KA30", 
+  "KY1", "KY2", "KY3", "KY4", "KY5", "KY6", "KY7", "KY8", "KY9", "KY10", "KY11", "KY12", "KY13", "KY14", "KY15", "KY16", 
+  "LA6", "LA8", "LA10", "LA20", "LA21", "LA22", 
+  "LD6", 
+  "LL35", "LL36", "LL37", "LL44", "LL45", "LL51", "LL52", "LL53", 
+  "ML1", "ML2", "ML3", "ML4", "ML5", "ML6", "ML7", "ML8", "ML9", "ML10", "ML11", "ML12", 
+  "NE5", "NE13", "NE15", "NE18", "NE19", "NE20", "NE21", "NE39", "NE40", "NE41", "NE42", "NE43", "NE44", "NE45", "NE46", "NE47", "NE48", "NE49", "NE61", "NE65", 
+  "PA1", "PA2", "PA3", "PA4", "PA5", "PA6", "PA7", "PA8", "PA9", "PA10", "PA11", "PA12", "PA13", "PA14", "PA15", "PA16", "PA17", "PA18", "PA19", "PA50", "PA51", "PA52", "PA53", "PA54", "PA55", "PA56", "PA57", "PA58", "PA59", 
+  "PH1", "PH2", "PH3", "PH4", "PH5", "PH6", "PH7", "PH8", "PH9", "PH10", "PH11", "PH12", "PH13", "PH14", "PH27", "PH28", "PH29", "PH45", "PH46", "PH47", "PH48", 
+  "PL1", "PL2", "PL3", "PL4", "PL5", "PL6", "PL7", "PL8", "PL9", "PL10", "PL11", "PL12", "PL13", "PL14", "PL15", "PL16", "PL17", "PL18", "PL19", "PL20", "PL21", "PL22", "PL23", "PL24", "PL25", "PL26", "PL27", "PL28", "PL29", "PL30", "PL31", "PL32", "PL33", "PL34", "PL35", 
+  "PO30", "PO31", "PO32", "PO33", "PO34", "PO35", "PO36", "PO37", "PO38", "PO39", "PO40", "PO41", 
+  "SA42", "SA48", 
+  "SY18", "SY19", "SY23", "SY24", "SY25", 
+  "TD1", "TD2", "TD3", "TD4", "TD5", "TD6", "TD7", "TD8", "TD9", "TD10", "TD11", "TD12", "TD13", "TD14", 
+  "TQ7", "TQ10", "TQ11", 
+  "TR1", "TR2", "TR3", "TR4", "TR5", "TR6", "TR7", "TR8", "TR9", "TR10", "TR11", "TR12", "TR13", "TR14", "TR15", "TR16", "TR17", "TR18", "TR19", "TR20"
+];
+
+function showResult(text, type) {
+  const resultDiv = document.getElementById('result-message');
+  if (resultDiv) {
+    resultDiv.style.display = 'block';
+    resultDiv.textContent = text;
+    resultDiv.className = type;
+  }
+}
+
+function checkDelivery() {
+  const inputEl = document.getElementById('postcodeInput');
+  if (!inputEl) return;
+  
+  let input = inputEl.value;
+  let formattedInput = input.toUpperCase().replace(/\s+/g, '');
+  
+  if (!formattedInput) {
+    showResult("Please enter a valid UK postcode.", "result-error");
+    return;
+  }
+
+  let area = "";
+  let outcode = "";
+  
+  const match = formattedInput.match(/^([A-Z]{1,2})(\d[A-Z\d]?)/);
+  if (match) {
+    area = match[1];
+    outcode = match[1] + match[2];
+  } else {
+    area = formattedInput.replace(/[^A-Z]/g, '');
+    outcode = formattedInput;
+  }
+
+  if (noNextDay.includes(outcode) || noNextDay.includes(area)) {
+    showResult("We do not offer any next day delivery option for this postcode.", "result-error");
+    return;
+  }
+
+  if (altExpress.includes(outcode) || altExpress.includes(area)) {
+    showResult("We can offer an alternate express delivery option with Royal Mail. Orders must be placed before 2pm.", "result-warning");
+    return;
+  }
+
+  showResult("Great! Standard next day delivery service is available for your area.", "result-success");
+}
+
+// Safely attach event listeners using Javascript after elements load
+const searchBtn = document.getElementById('searchButton');
+const postcodeInput = document.getElementById('postcodeInput');
+
+if (searchBtn) {
+  searchBtn.addEventListener('click', checkDelivery);
+}
+if (postcodeInput) {
+  postcodeInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      checkDelivery();
+    }
+  });
+}
+</script>
+
+</body>
+</html>
