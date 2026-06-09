@@ -3,72 +3,96 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Delivery Postcode Checker</title>
+<title>Next Day Delivery Checker</title>
 <style>
-  .delivery-checker-container {
+  /* Base reset to ensure it fits the exact dimensions smoothly */
+  * {
+    box-sizing: border-box;
+  }
+  body, html {
+    margin: 0;
+    padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    max-width: 480px;
-    margin: 2rem auto;
-    padding: 2rem;
-    border-radius: 12px;
+    background-color: transparent; /* Blends cleanly into your Dixa sidebar */
+  }
+  
+  .delivery-checker-container {
+    width: 100%;
+    max-width: 375px; /* Matches your container width */
+    margin: 0 auto;
+    padding: 20px 16px; /* Reduced padding for narrow space */
     background: #ffffff;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-    border: 1px solid #eaecef;
+    border-bottom: 1px solid #eaecef; /* Optional subtle border */
     text-align: center;
   }
+  
   .delivery-checker-container h2 {
     margin-top: 0;
     color: #24292e;
-    font-size: 1.5rem;
+    font-size: 1.25rem; /* Shrunk slightly */
     font-weight: 600;
+    margin-bottom: 8px;
   }
+  
   .delivery-checker-container p {
     color: #586069;
-    font-size: 0.95rem;
-    margin-bottom: 1.5rem;
-    line-height: 1.5;
+    font-size: 0.85rem; /* Shrunk slightly */
+    margin-bottom: 1.2rem;
+    line-height: 1.4;
   }
+  
+  /* Compact Input Group */
   .input-group {
     display: flex;
-    gap: 10px;
+    gap: 8px; /* Tighter spacing */
     margin-bottom: 1.2rem;
   }
+  
   .input-group input {
     flex: 1;
-    padding: 12px 16px;
+    min-width: 0; /* Prevents input from breaking flexbox */
+    padding: 10px 12px; /* Smaller padding */
     border: 1px solid #d1d5da;
-    border-radius: 8px;
-    font-size: 1rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
     outline: none;
     transition: all 0.2s ease;
   }
+  
   .input-group input:focus {
     border-color: #0366d6;
     box-shadow: 0 0 0 3px rgba(3, 102, 214, 0.15);
   }
+  
   .input-group button {
-    padding: 12px 24px;
+    padding: 10px 16px; /* Smaller button */
     background-color: #0366d6;
     color: white;
     border: none;
-    border-radius: 8px;
-    font-size: 1rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.2s ease;
+    white-space: nowrap; /* Stops text from wrapping */
   }
+  
   .input-group button:hover {
     background-color: #005cc5;
   }
+  
+  /* Compact Results */
   #result-message {
-    padding: 1rem;
-    border-radius: 8px;
-    font-size: 1rem;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
     font-weight: 500;
     display: none;
     transition: all 0.3s ease;
     text-align: left;
+    line-height: 1.4;
   }
+  
   .result-success {
     background-color: #d4edda;
     color: #155724;
@@ -89,18 +113,19 @@
 <body>
 
 <div class="delivery-checker-container">
-  <h2>Next day delivery checker </h2>
-  <p>Enter the full postcode below to see our available next day delivery services.</p>
+  <h2>Next Day Delivery</h2>
+  <p>Enter a full UK postcode to check delivery availability.</p>
   
   <div class="input-group">
     <input type="text" id="postcodeInput" placeholder="e.g. AB10 1AA">
-    <button id="searchButton">Search</button>
+    <button id="searchButton">Check</button>
   </div>
   
   <div id="result-message"></div>
 </div>
 
 <script>
+// Array 1: Specific regions and outcodes with NO Next Day Service
 const noNextDay = [
   "AB31", "AB32", "AB33", "AB34", "AB35", "AB36", "AB37", "AB38", "AB41", "AB42", 
   "AB43", "AB44", "AB45", "AB51", "AB52", "AB53", "AB54", "AB55", "AB56", "BT", 
@@ -119,6 +144,7 @@ const noNextDay = [
   "TR21", "TR22", "TR23", "TR24", "TR25", "ZE"
 ];
 
+// Array 2: Specific regions and outcodes eligible for Alternate Express Service
 const altExpress = [
   "AB10", "AB11", "AB12", "AB13", "AB14", "AB15", "AB16", "AB21", "AB22", "AB23", "AB24", "AB25", "AB30", 
   "BD23", 
@@ -193,7 +219,7 @@ function checkDelivery() {
     return;
   }
 
-  showResult("Great! Our Amazon Shipping next day delivery service is available for this area.", "result-success");
+  showResult("Great! Standard next day delivery service is available for your area.", "result-success");
 }
 
 const searchBtn = document.getElementById('searchButton');
